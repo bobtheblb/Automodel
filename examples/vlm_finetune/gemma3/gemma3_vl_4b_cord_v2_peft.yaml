@@ -22,9 +22,9 @@ recipe: FinetuneRecipeForVLM
 
 step_scheduler:
   global_batch_size: 8
-  local_batch_size: 1
+  local_batch_size: 8
   ckpt_every_steps: 100
-  val_every_steps: 1000  # will run every x number of gradient steps
+  val_every_steps: 100  # will run every x number of gradient steps
   max_steps: 1000
 
 dist_env:
@@ -73,9 +73,11 @@ loss_fn:
   _target_: nemo_automodel.components.loss.masked_ce.MaskedCrossEntropy
 
 dataset:
-  _target_: nemo_automodel.components.datasets.vlm.datasets.make_cord_v2_dataset
-  path_or_dataset: naver-clova-ix/cord-v2
+  _target_: nemo_automodel.components.datasets.vlm.collect_mmfr_data.make_cord_v2_dataset
+  path_or_dataset: AnnaGao/MMFR-Dataset
   split: train
+  n_train_per_class: 3000
+  n_val_per_class: 200
 
 dataloader:
   _target_: torchdata.stateful_dataloader.StatefulDataLoader
@@ -85,9 +87,11 @@ dataloader:
     _target_: nemo_automodel.components.datasets.vlm.collate_fns.default_collate_fn
 
 validation_dataset:
-  _target_: nemo_automodel.components.datasets.vlm.datasets.make_cord_v2_dataset
-  path_or_dataset: naver-clova-ix/cord-v2
+  _target_: nemo_automodel.components.datasets.vlm.collect_mmfr_data.make_cord_v2_dataset
+  path_or_dataset: AnnaGao/MMFR-Dataset
   split: validation
+  n_train_per_class: 3000
+  n_val_per_class: 200
 
 validation_dataloader:
   _target_: torchdata.stateful_dataloader.StatefulDataLoader
@@ -103,6 +107,11 @@ freeze_config:
   freeze_vision_tower: true
   freeze_language_model: false
   
+wandb:
+  project: hackathon
+  entity: kevin-school
+  name: "test"
+
 # Uncomment and configure for W&B logging
 # logger:
 #   wandb_project:
